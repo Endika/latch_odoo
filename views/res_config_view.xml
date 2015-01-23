@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_latch_configuration" model="ir.ui.view">
+            <field name="name">latch.odoo.config</field>
+            <field name="model">latch.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Configure Latch" class="oe_form_configuration">
+                    <header>
+                        <button string="Apply" type="object" name="execute" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" type="object" name="cancel" class="oe_link"/>
+                    </header>
+                    <separator string="Latch Configure"/>
+                    <group>
+                        <div>
+                            <div name="app_id">
+                                <label for="app_id"/>
+                                <field name="app_id" class="oe_inline"/>
+                                <p>You need to add the APP ID to the Latch aplication.</p>
+                            </div>
+                            <div name="secret_key">
+                                <label for="secret_key"/>
+                                <field name="secret_key" class="oe_inline"/>
+                                <p>You need to add the SECRET KEY to the Latch aplication.</p>
+                            </div>
+                        </div>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_latch_configuration" model="ir.actions.act_window">
+            <field name="name">latch.odoo.config.action</field>
+            <field name="res_model">latch.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+        </record>
+
+        <menuitem id="menu_latch_configuration" name="Latch" parent="base.menu_config"
+            sequence="20" action="action_latch_configuration"/>
+
+    </data>
+</openerp>
