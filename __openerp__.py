@@ -27,7 +27,7 @@
     'maintainer': 'Endika Iglesias',
     'website': 'http://www.endikaiglesias.com',
     'license': 'AGPL-3',
-    "category": "Segurity",
+    "category": "Security",
     "description": """
 Latch Odoo
 =====================
