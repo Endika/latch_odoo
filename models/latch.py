@@ -17,10 +17,10 @@
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 '''
 
-
 import json
 import logging
 import time
+
 
 class Error(object):
 
@@ -32,7 +32,6 @@ class Error(object):
         self.code = json_data['code']
         self.message = json_data['message']
 
-
     def get_code(self):
         return self.code
 
@@ -40,7 +39,7 @@ class Error(object):
         return self.message
 
     def to_json(self):
-        return {"code" : self.code, "message" : self.message}
+        return {"code": self.code, "message": self.message}
 
     def __repr__(self):
         return json.dumps(self.to_json())
@@ -49,18 +48,20 @@ class Error(object):
         return self.__repr__()
 
 
-
 class LatchResponse(object):
     '''
-    This class models a response from any of the endpoints in the Latch API.
-    It consists of a "data" and an "error" elements. Although normally only one of them will be
-    present, they are not mutually exclusive, since errors can be non fatal, and therefore a response
-    could have valid information in the data field and at the same time inform of an error.
+    This class models a response from any of the endpoints
+    in the Latch API. It consists of a "data" and an "error" elements.
+    Although normally only one of them will be present, they are not
+    mutually exclusive, since errors can be non fatal, and therefore
+    a response could have valid information in the data field and at
+    the same time inform of an error.
     '''
 
     def __init__(self, json_string):
         '''
-        @param $json a json string received from one of the methods of the Latch API
+        @param $json a json string received from one of the methods
+                     of the Latch API
         '''
         json_object = json.loads(json_string)
         if "data" in json_object:
@@ -79,27 +80,24 @@ class LatchResponse(object):
         '''
         return self.data
 
-
     def set_data(self, data):
         '''
         @param $data the data to include in the API response
         '''
         self.data = json.loads(data)
 
-
     def get_error(self):
         '''
-        @return Error the error part of the API response, consisting of an error code and an error message
+        @return Error the error part of the API response,
+                consisting of an error code and an error message
         '''
         return self.error
-
 
     def set_error(self, error):
         '''
         @param $error an error to include in the API response
         '''
         self.error = Error(error)
-
 
     def to_json(self):
         '''
@@ -113,39 +111,40 @@ class LatchResponse(object):
         if hasattr(self, "error"):
             json_response["error"] = self.error
 
-        return json_response;
+        return json_response
 
 
 class Latch(object):
 
-    API_HOST = "latch.elevenpaths.com";
-    API_PORT = 443;
+    API_HOST = "latch.elevenpaths.com"
+    API_PORT = 443
     API_HTTPS = True
-    API_PROXY = None;
-    API_PROXY_PORT = None;
-    API_CHECK_STATUS_URL = "/api/0.9/status";
-    API_PAIR_URL = "/api/0.9/pair";
-    API_PAIR_WITH_ID_URL = "/api/0.9/pairWithId";
-    API_UNPAIR_URL = "/api/0.9/unpair";
-    API_LOCK_URL = "/api/0.9/lock";
-    API_UNLOCK_URL = "/api/0.9/unlock";
-    API_HISTORY_URL = "/api/0.9/history";
-    API_OPERATION_URL = "/api/0.9/operation";
+    API_PROXY = None
+    API_PROXY_PORT = None
+    API_CHECK_STATUS_URL = "/api/0.9/status"
+    API_PAIR_URL = "/api/0.9/pair"
+    API_PAIR_WITH_ID_URL = "/api/0.9/pairWithId"
+    API_UNPAIR_URL = "/api/0.9/unpair"
+    API_LOCK_URL = "/api/0.9/lock"
+    API_UNLOCK_URL = "/api/0.9/unlock"
+    API_HISTORY_URL = "/api/0.9/history"
+    API_OPERATION_URL = "/api/0.9/operation"
 
-    AUTHORIZATION_HEADER_NAME = "Authorization";
-    DATE_HEADER_NAME = "X-11Paths-Date";
-    AUTHORIZATION_METHOD = "11PATHS";
-    AUTHORIZATION_HEADER_FIELD_SEPARATOR = " ";
+    AUTHORIZATION_HEADER_NAME = "Authorization"
+    DATE_HEADER_NAME = "X-11Paths-Date"
+    AUTHORIZATION_METHOD = "11PATHS"
+    AUTHORIZATION_HEADER_FIELD_SEPARATOR = " "
 
-    UTC_STRING_FORMAT = "%Y-%m-%d %H:%M:%S";
+    UTC_STRING_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-    X_11PATHS_HEADER_PREFIX = "X-11paths-";
-    X_11PATHS_HEADER_SEPARATOR = ":";
+    X_11PATHS_HEADER_PREFIX = "X-11paths-"
+    X_11PATHS_HEADER_SEPARATOR = ":"
 
     @staticmethod
     def set_host(host):
         '''
-        @param $host The host to be connected with (http://hostname) or (https://hostname)
+        @param $host The host to be connected with
+               (http://hostname) or (https://hostname)
         '''
         if host.startswith("http://"):
             Latch.API_HOST = host[len("http://"):]
@@ -169,14 +168,17 @@ class Latch(object):
     @staticmethod
     def get_part_from_header(part, header):
         '''
-        The custom header consists of three parts, the method, the appId and the signature.
+        The custom header consists of three parts, the method,
+        the appId and the signature.
         This method returns the specified part if it exists.
         @param $part The zero indexed part to be returned
-        @param $header The HTTP header value from which to extract the part
-        @return string the specified part from the header or an empty string if not existent
+        @param $header The HTTP header value from which to extract
+               the part
+        @return string the specified part from the header or an empty
+                string if not existent
         '''
         if (header):
-            parts = header.split(Latch.AUTHORIZATION_HEADER_FIELD_SEPARATOR);
+            parts = header.split(Latch.AUTHORIZATION_HEADER_FIELD_SEPARATOR)
             if(len(parts) >= part):
                 return parts[part]
         return ""
@@ -185,7 +187,8 @@ class Latch(object):
     def get_auth_method_from_header(authorizationHeader):
         '''
         @param $authorizationHeader Authorization HTTP Header
-        @return string the Authorization method. Typical values are "Basic", "Digest" or "11PATHS"
+        @return string the Authorization method.
+        Typical values are "Basic", "Digest" or "11PATHS"
         '''
         return Latch.get_part_from_header(0, authorizationHeader)
 
@@ -193,7 +196,8 @@ class Latch(object):
     def get_app_id_from_header(authorizationHeader):
         '''
         @param $authorizationHeader Authorization HTTP Header
-        @return string the requesting application Id. Identifies the application using the API
+        @return string the requesting application Id.
+                Identifies the application using the API
         '''
         return Latch.get_part_from_header(1, authorizationHeader)
 
@@ -201,22 +205,20 @@ class Latch(object):
     def get_signature_from_header(authorizationHeader):
         '''
         @param $authorizationHeader Authorization HTTP Header
-        @return string the signature of the current request. Verifies the identity of the application using the API
+        @return string the signature of the current request.
+        Verifies the identity of the application using the API
         '''
         return Latch.get_part_from_header(2, authorizationHeader)
 
-
     def __init__(self, appId, secretKey):
         '''
-        Create an instance of the class with the Application ID and secret obtained from Eleven Paths
+        Create an instance of the class with the Application ID
+        and secret obtained from Eleven Paths
         @param $appId
         @param $secretKey
         '''
         self.appId = appId
         self.secretKey = secretKey
-
-
-
 
     def _http(self, method, url, xHeaders=None, params=None):
         '''
@@ -234,13 +236,17 @@ class Latch(object):
             import httplib as http
             import urllib
 
-        authHeaders = self.authentication_headers(method, url, xHeaders, None, params)
-        if Latch.API_PROXY != None:
+        authHeaders = self.authentication_headers(method, url,
+                                                  xHeaders, None,
+                                                  params)
+        if Latch.API_PROXY is not None:
             if Latch.API_HTTPS:
-                conn = http.HTTPSConnection(Latch.API_PROXY, Latch.API_PROXY_PORT)
+                conn = http.HTTPSConnection(Latch.API_PROXY,
+                                            Latch.API_PROXY_PORT)
                 conn.set_tunnel(Latch.API_HOST, Latch.API_PORT)
             else:
-                conn = http.HTTPConnection(Latch.API_PROXY, Latch.API_PROXY_PORT)
+                conn = http.HTTPConnection(Latch.API_PROXY,
+                                           Latch.API_PROXY_PORT)
                 url = "http://" + Latch.API_HOST + url
         else:
             if Latch.API_HTTPS:
@@ -251,11 +257,10 @@ class Latch(object):
         try:
             allHeaders = authHeaders
             if (method == "POST" or method == "PUT"):
-                allHeaders["Content-type"] = "application/x-www-form-urlencoded"
+                contenttype = allHeaders["Content-type"]
+                contenttype = "application/x-www-form-urlencoded"
             if params is not None:
                 parameters = urllib.urlencode(params)
-
-
                 conn.request(method, url, parameters, headers=allHeaders)
             else:
                 conn.request(method, url, headers=authHeaders)
@@ -263,13 +268,12 @@ class Latch(object):
             response = conn.getresponse()
 
             responseData = response.read().decode('utf8')
-            conn.close();
+            conn.close()
             ret = LatchResponse(responseData)
         except:
             ret = None
 
         return ret
-
 
     def pairWithId(self, accountId):
         return self._http("GET", self.API_PAIR_WITH_ID_URL + "/" + accountId)
@@ -281,51 +285,58 @@ class Latch(object):
         return self._http("GET", self.API_CHECK_STATUS_URL + "/" + accountId)
 
     def operationStatus(self, accountId, operationId):
-        return self._http("GET", self.API_CHECK_STATUS_URL + "/" + accountId + "/op/" + operationId)
+        return self._http("GET", self.API_CHECK_STATUS_URL + "/" + accountId +
+                          "/op/" + operationId)
 
     def unpair(self, accountId):
         return self._http("GET", self.API_UNPAIR_URL + "/" + accountId)
 
     def lock(self, accountId, operationId=None):
-        if (operationId == None):
+        if (operationId is None):
             return self._http("POST", self.API_LOCK_URL + "/" + accountId)
         else:
-            return self._http("POST", self.API_LOCK_URL + "/" + accountId + "/op/" + operationId)
+            return self._http("POST", self.API_LOCK_URL + "/" + accountId +
+                              "/op/" + operationId)
 
     def unlock(self, accountId, operationId=None):
-        if (operationId == None):
+        if (operationId is None):
             return self._http("POST", self.API_UNLOCK_URL + "/" + accountId)
         else:
-            return self._http("POST", self.API_UNLOCK_URL + "/" + accountId + "/op/" + operationId)
+            return self._http("POST", self.API_UNLOCK_URL + "/" + accountId +
+                              "/op/" + operationId)
 
     def history(self, accountId, fromT=0, toT=None):
         if (toT is None):
             toT = int(round(time.time() * 1000))
-        return self._http("GET", self.API_HISTORY_URL + "/" + accountId + "/" + str(fromT) + "/" + str(toT))
+        return self._http("GET", self.API_HISTORY_URL + "/" + accountId + "/" +
+                          str(fromT) + "/" + str(toT))
 
     def createOperation(self, parentId, name, twoFactor, lockOnRequest):
-        params = {'parentId':parentId, 'name':name, 'two_factor':twoFactor, 'lock_on_request':lockOnRequest}
+        params = {'parentId': parentId, 'name': name,
+                  'two_factor': twoFactor, 'lock_on_request': lockOnRequest}
         return self._http("PUT", self.API_OPERATION_URL, None, params)
 
     def updateOperation(self, operationId, name, twoFactor, lockOnRequest):
-        params = {'name':name, 'two_factor':twoFactor, 'lock_on_request':lockOnRequest}
-        return self._http("POST", self.API_OPERATION_URL + "/" + operationId, None, params)
+        params = {'name': name, 'two_factor': twoFactor,
+                  'lock_on_request': lockOnRequest}
+        return self._http("POST", self.API_OPERATION_URL + "/" +
+                          operationId, None, params)
 
     def deleteOperation(self, operationId):
         return self._http("DELETE", self.API_OPERATION_URL + "/" + operationId)
 
     def getOperations(self, operationId=None):
-        if (operationId == None):
+        if (operationId is None):
             return self._http("GET", self.API_OPERATION_URL)
         else:
-            return self._http("GET", self.API_OPERATION_URL + "/" + operationId)
-
-
+            return self._http("GET", self.API_OPERATION_URL + "/" +
+                              operationId)
 
     def sign_data(self, data):
         '''
         @param $data the string to sign
-        @return string base64 encoding of the HMAC-SHA1 hash of the data parameter using {@code secretKey} as cipher key.
+        @return string base64 encoding of the HMAC-SHA1 hash of the data
+                parameter using {@code secretKey} as cipher key.
         '''
         from hashlib import sha1
         import hmac
@@ -334,24 +345,30 @@ class Latch(object):
         sha1Hash = hmac.new(self.secretKey.encode(), data.encode(), sha1)
         return binascii.b2a_base64(sha1Hash.digest())[:-1].decode('utf8')
 
-
-    def authentication_headers(self, HTTPMethod, queryString, xHeaders=None, utc=None, params=None):
+    def authentication_headers(self, HTTPMethod, queryString,
+                               xHeaders=None, utc=None, params=None):
         '''
-        Calculate the authentication headers to be sent with a request to the API
-        @param $HTTPMethod the HTTP Method, currently only GET is supported
-        @param $queryString the urlencoded string including the path (from the first forward slash) and the parameters
-        @param $xHeaders HTTP headers specific to the 11-paths API. null if not needed.
-        @param $utc the Universal Coordinated Time for the Date HTTP header
-        @return array a map with the Authorization and Date headers needed to sign a Latch API request
+        Calculate the authentication headers to be sent with
+        a request to the API
+        @param $HTTPMethod the HTTP Method, currently only
+        GET is supported
+        @param $queryString the urlencoded string including
+        the path (from the first forward slash) and the parameters
+        @param $xHeaders HTTP headers specific to the 11-paths API.
+        null if not needed.
+        @param $utc the Universal Coordinated Time for the
+        Date HTTP header
+        @return array a map with the Authorization and Date headers
+        needed to sign a Latch API request
         '''
         if (not utc):
             utc = Latch.get_current_UTC()
 
         utc = utc.strip()
 
-        #logging.debug(HTTPMethod);
-        #logging.debug(queryString);
-        #logging.debug(utc);
+        # logging.debug(HTTPMethod)
+        # logging.debug(queryString)
+        # logging.debug(utc)
 
         stringToSign = (HTTPMethod.upper().strip() + "\n" +
                         utc + "\n" +
@@ -359,23 +376,29 @@ class Latch(object):
                         queryString.strip())
 
         if (params is not None):
-            stringToSign =  stringToSign + "\n" + self.get_serialized_params(params)
+            result = self.get_serialized_params(params)
+            stringToSign = stringToSign + "\n" + result
 
-        authorizationHeader = (Latch.AUTHORIZATION_METHOD + Latch.AUTHORIZATION_HEADER_FIELD_SEPARATOR +
-                               self.appId + Latch.AUTHORIZATION_HEADER_FIELD_SEPARATOR +
+        authorizationHeader = (Latch.AUTHORIZATION_METHOD +
+                               Latch.AUTHORIZATION_HEADER_FIELD_SEPARATOR +
+                               self.appId +
+                               Latch.AUTHORIZATION_HEADER_FIELD_SEPARATOR +
                                self.sign_data(stringToSign))
 
         headers = dict()
-        headers[Latch.AUTHORIZATION_HEADER_NAME] = authorizationHeader;
-        headers[Latch.DATE_HEADER_NAME] = utc;
+        headers[Latch.AUTHORIZATION_HEADER_NAME] = authorizationHeader
+        headers[Latch.DATE_HEADER_NAME] = utc
         return headers
-
 
     def get_serialized_headers(self, xHeaders):
         '''
-        Prepares and returns a string ready to be signed from the 11-paths specific HTTP headers received
-        @param $xHeaders a non neccesarily ordered map (array without duplicates) of the HTTP headers to be ordered.
-        @return string The serialized headers, an empty string if no headers are passed, or None if there's a problem such as non 11paths specific headers
+        Prepares and returns a string ready to be signed from
+        the 11-paths specific HTTP headers received
+        @param $xHeaders a non neccesarily ordered map
+        (array without duplicates) of the HTTP headers to be ordered.
+        @return string The serialized headers, an empty string if no
+        headers are passed, or None if there's a problem such as non
+        11paths specific headers
         '''
         if (xHeaders):
             headers = dict((k.lower(), v) for k, v in xHeaders.iteritems())
@@ -383,13 +406,16 @@ class Latch(object):
             serializedHeaders = ""
             for key, value in headers:
                 if (not key.startsWith(Latch.X_11PATHS_HEADER_PREFIX.lower())):
-                    logging.error("Error serializing headers. Only specific " + Latch.X_11PATHS_HEADER_PREFIX + " headers need to be singed")
+                    logging.error("Error serializing headers. Only specific " +
+                                  Latch.X_11PATHS_HEADER_PREFIX +
+                                  " headers need to be singed")
                     return None
-                serializedHeaders += key + Latch.X_11PATHS_HEADER_SEPARATOR + value + " "
+                serializedHeaders += key
+                serializedHeaders += Latch.X_11PATHS_HEADER_SEPARATOR
+                serializedHeaders += value + " "
             return serializedHeaders.strip()
         else:
             return ""
-
 
     def get_serialized_params(self, params):
         if (params):
@@ -403,8 +429,7 @@ class Latch(object):
     @staticmethod
     def get_current_UTC():
         '''
-        @return a string representation of the current time in UTC to be used in a Date HTTP Header
+        @return a string representation of the current time in UTC
+        to be used in a Date HTTP Header
         '''
         return time.strftime(Latch.UTC_STRING_FORMAT, time.gmtime())
-
-
