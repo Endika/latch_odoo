@@ -18,10 +18,11 @@
             <field name="model">latch.odoo</field>
             <field name="arch" type="xml">
                 <form string="Latch user">
+                    <field name="state" invisible="1"/>
                     <div>
-                        <p><label for="name" class="oe_inline" /> <field name="name" class="oe_inline"/></p>
-                        <p><label for="code" class="oe_inline" /> <field name="code" class="oe_inline"/></p>
-                        <p><label for="token" class="oe_inline" /> <field name="token" class="oe_inline"/></p>
+                        <p attrs="{'readonly': [('state','=','pareado')]}"><label for="name" class="oe_inline" /> <field name="name" class="oe_inline"/></p>
+                        <p attrs="{'invisible': [('state','=','pareado')]}"><label for="code" class="oe_inline" /> <field name="code" class="oe_inline"/></p>
+                        <p attrs="{'readonly': [('state','=','pareado')]}"><label for="token" class="oe_inline" /> <field name="token" class="oe_inline"/></p>
                     </div>
                 </form>
             </field>
@@ -48,13 +49,11 @@
         </record>
 
         <!-- ### MENU ACCESS ### -->
-        <menuitem id="latch_odoo" name="Latch" parent="base.menu_definitions" sequence="60"/>
-
         <menuitem id="menu_latch_odoo"
-            parent="latch_odoo"
+            parent="base.menu_users"
             action="action_latch_odoo"
-            sequence="1"
-            name="Users"/>
+            sequence="60"
+            name="Latch users"/>
 
     </data>
 </openerp>

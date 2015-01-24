@@ -23,13 +23,10 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
-import datetime
 from openerp.tools.config import config
 import openerp
 import latch
-import logging
 
-_logger = logging.getLogger(__name__)
 
 class res_users(orm.Model):
     _inherit = "res.users"
@@ -37,38 +34,42 @@ class res_users(orm.Model):
     def authenticate(self, db, login, password, user_agent_env):
         uid = self._login(db, login, password)
         if uid:
-          cr = self.pool.cursor()
-          uid_admin = openerp.SUPERUSER_ID
-          context = None
-          latch_pool = self.pool['latch.odoo']
-          latch_ids = latch_pool.search(cr,
-                                        uid_admin,
-                                        [('name', '=', int(uid))])
-          if latch_ids:
-              config_pool = self.pool.get('ir.config_parameter')
-              app_id = config_pool.get_param(cr, uid,
-                                             'latch_odoo.app_id',
-                                             default=False,
-                                             context=context)
-              secret_key = config_pool.get_param(cr,
-                                                 uid,
-                                                 'latch_odoo.secret_key',
-                                                 default=False,
-                                                 context=context)
-              if app_id is False or len(app_id) <= 0:
-                  app_id = False
-              if secret_key is False or len(secret_key) <= 0:
-                  secret_key = False
+            cr = self.pool.cursor()
+            uid_admin = openerp.SUPERUSER_ID
+            context = None
+            latch_pool = self.pool['latch.odoo']
+            latch_ids = latch_pool.search(cr,
+                                          uid_admin,
+                                          [('name', '=', int(uid))])
+            if latch_ids:
+                config_pool = self.pool.get('ir.config_parameter')
+                app_id = config_pool.get_param(cr, uid,
+                                               'latch_odoo.app_id',
+                                               default=False,
+                                               context=context)
+                secret_key = config_pool.get_param(cr,
+                                                   uid,
+                                                   'latch_odoo.secret_key',
+                                                   default=False,
+                                                   context=context)
+                if app_id is False or len(app_id) <= 0:
+                    app_id = False
+                if secret_key is False or len(secret_key) <= 0:
+                    secret_key = False
 
-              latch_obj = latch_pool.browse(cr, uid_admin, latch_ids)
-              api = latch.Latch(app_id, secret_key)
-              response = api.status(str(latch_obj['token']))
-              data_tmp=response.get_data()
-              error_tmp=response.get_error()
-              if data_tmp['operations'][app_id]['status'] != 'on':
-                  return False
+                latch_obj = latch_pool.browse(cr, uid_admin, latch_ids)
+                api = latch.Latch(app_id, secret_key)
+                response = api.status(str(latch_obj['token']))
+                data = response.get_data()
+                error = response.get_error()
+                try:
+                    if data['operations'][app_id]['status'] != 'on':
+                        return False
+                except Exception, e:
+                    return False
 
-        return super(res_users, self).authenticate(db, login, password, user_agent_env)
+        return super(res_users, self).authenticate(db, login, password,
+                                                   user_agent_env)
 
     def action_latch_wizard(self, cr, uid, ids, vals, context=None):
         data_obj = self.pool['ir.model.data']

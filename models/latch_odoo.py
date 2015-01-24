@@ -23,10 +23,9 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
-import datetime
 from openerp.tools.config import config
-import datetime
 import latch
+
 
 class latch_odoo(orm.Model):
     _name = "latch.odoo"
@@ -36,12 +35,16 @@ class latch_odoo(orm.Model):
                                 required=True,
                                 readonly=False),
         'token': fields.char("Token", size=200,
-                             required=False),
+                             required=False,
+                             readonly=False),
         'code': fields.char("code", size=20,
                             required=False),
-        'state': fields.char("state", size=20,
-                             required=False),
+        'state': fields.selection((('sinparear', 'Sin parear'),
+                                   ('pareado', 'Pareado')),
+                                  'Estado'),
     }
+
+    _defaults = {'state': 'sinparear'}
 
     def _conf(self, cr, uid, context=None):
         config_pool = self.pool.get('ir.config_parameter')
@@ -61,28 +64,47 @@ class latch_odoo(orm.Model):
         return app_id, secret_key
 
     def create(self, cr, uid, vals, context=None):
-        if not ( (type(vals['token']) is str and \
-            len(vals['token']) > 0) ):
-
+        if not ((type(vals['token']) is str and len(vals['token']) > 0)):
+            if type(vals['code']) is bool:
+                return False
             app_id, secret_key = self._conf(cr, uid, context=context)
             api = latch.Latch(app_id, secret_key)
             response = api.pair(vals['code'])
-            data=response.get_data()
-            error=response.get_error()
-            if not 'accountId' in data:
+            data = response.get_data()
+            error = response.get_error()
+            if 'accountId' not in data:
                 return False
             vals['token'] = str(data['accountId'])
         vals['code'] = ""
+        vals['state'] = "pareado"
 
         return super(latch_odoo, self).create(cr, uid, vals,
                                               context=context)
 
+    def write(self, cr, uid, ids, vals, context=None):
+        if not type(vals['token']) is str or len(vals['token']) <= 0:
+            return False
+        app_id, secret_key = self._conf(cr, uid, context=context)
+        api = latch.Latch(app_id, secret_key)
+        response = api.status(vals['token'])
+        data = response.get_data()
+        error = response.get_error()
+        try:
+            latch_status = data['operations'][app_id]['status']
+            ok = False if latch_status != 'on' else True
+        except Exception, e:
+            return False
+
+        return super(latch_odoo, self).write(cr, uid, ids,
+                                             vals, context=context)
+
     def unlink(self, cr, uid, ids, context=None):
         app_id, secret_key = self._conf(cr, uid, context=context)
         api = latch.Latch(app_id, secret_key)
-        latch_obj = self.browse(cr, uid, ids, context=context)
-        if type(latch_obj['token']) is str:
-            response = api.unpair(latch_obj['token'])
-            data=response.get_data()
-            error=response.get_error()
+        for latch_id in ids:
+            latch_obj = self.browse(cr, uid, latch_id, context=context)
+            if type(latch_obj['token']) is str:
+                response = api.unpair(latch_obj['token'])
+                data = response.get_data()
+                error = response.get_error()
         return super(latch_odoo, self).unlink(cr, uid, ids, context)

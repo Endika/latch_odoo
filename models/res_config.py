@@ -34,13 +34,13 @@ class latch_config_settings(osv.TransientModel):
     def get_default_conf(self, cr, uid, fields, context=None):
         conf_par = self.pool.get('ir.config_parameter')
         app_id = conf_par.get_param(cr, uid,
-                                   'latch_odoo.app_id',
-                                   default="",
-                                   context=context)
+                                    'latch_odoo.app_id',
+                                    default="",
+                                    context=context)
         secret_key = conf_par.get_param(cr, uid,
-                                   'latch_odoo.secret_key',
-                                   default="",
-                                   context=context)
+                                        'latch_odoo.secret_key',
+                                        default="",
+                                        context=context)
 
         return {'app_id': app_id, 'secret_key': secret_key}
 
