@@ -32,7 +32,7 @@
 Latch Odoo
 =====================
 under construction
-TODO: prepare the Latch button into user profile and
+TODO: prepare the Latch button into user profile
     """,
     'depends': ['base'],
     "data": [
