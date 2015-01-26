@@ -10,7 +10,7 @@
 
                 <field name="image" position="after">
                     <div>
-                    <button name="action_latch_wizard" position="attributes" string="Latch" type="object"/>
+                    <button name="action_latch_wizard" string="Latch" type="object"/>
                     </div>
                 </field>
 
