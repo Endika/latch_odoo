@@ -78,7 +78,7 @@ class res_users(orm.Model):
         view_id = data_obj.browse(cr, uid, result, context=context).res_id
         return {
             'type': 'ir.actions.act_window',
-            'res_model': 'res_users',
+            'res_model': 'latch_odoo',
             'view_mode': 'form',
             'view_type': 'form',
             'view_id': [view_id],
