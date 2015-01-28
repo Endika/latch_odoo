@@ -26,6 +26,8 @@ from openerp.osv import orm, fields
 from openerp.tools.config import config
 import openerp
 import latch
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class res_users(orm.Model):
@@ -72,16 +74,16 @@ class res_users(orm.Model):
                                                    user_agent_env)
 
     def action_latch_wizard(self, cr, uid, ids, vals, context=None):
-        data_obj = self.pool['ir.model.data']
-        result = data_obj._get_id(cr, uid, 'latch_odoo',
-                                  'wizard_latch_pare')
-        view_id = data_obj.browse(cr, uid, result, context=context).res_id
+        mod_obj = self.pool.get('ir.model.data')
+        res = mod_obj.get_object_reference(cr, uid, 'latch_odoo', 'wizard_latch_pare')
+        ctx = {'res_users_popup':True}
         return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'latch_odoo',
-            'view_mode': 'form',
+            'name': 'Latch account',
             'view_type': 'form',
-            'view_id': [view_id],
-            'res_id': ids[0],
+            'view_mode': 'form',
+            'res_model': 'latch.odoo',
+            'context': ctx,
+            'type': 'ir.actions.act_window',
             'target': 'new',
+            'view_id': [res and res[1] or False],
         }
