@@ -3,9 +3,7 @@
 #
 #    OpenERP, Open Source Management Solution
 #    This module copyright :
-#        (c) 2014 Antiun Ingenieria, SL (Madrid, Spain, http://www.antiun.com)
-#                 Endika Iglesias <endikaig@antiun.com>
-#                 Antonio Espinosa <antonioea@antiun.com>
+#        (c) 2014 Endika Iglesias <endika2@gmail.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
