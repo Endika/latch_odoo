@@ -3,7 +3,7 @@
 #
 #    OpenERP, Open Source Management Solution
 #    This module copyright :
-#        (c) 2014 Endika Iglesias <endika2@gmail.com>
+#        (c) 2015 Endika Iglesias <endika2@gmail.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
